@@ -160,21 +160,33 @@ async function main(): Promise<void> {
     while (true) {
         try {
             for (const GUILD_ID of GUILD_IDS) {
-                const data = await fetchJoinRequests(null, GUILD_ID);
-                if (!data.guild_join_requests || data.guild_join_requests.length === 0) {
-                    console.log(`No join requests found for guild ${GUILD_ID}`);
-                    continue;
-                }
+                let lastId: string | null = null;
+                let hasMore = true;
 
-                const newApplicants = data.guild_join_requests.filter(
-                    applicant => !processedUsers.has(applicant.id)
-                );
+                while (hasMore) {
+                    const data = await fetchJoinRequests(lastId, GUILD_ID);
+                    if (!data.guild_join_requests || data.guild_join_requests.length === 0) {
+                        console.log(`No more join requests found for guild ${GUILD_ID}`);
+                        hasMore = false;
+                        break;
+                    }
 
-                if (newApplicants.length > 0) {
-                    await processApplicants(newApplicants);
-                    newApplicants.forEach(applicant => processedUsers.add(applicant.id));
-                    totalProcessed += newApplicants.length;
-                    console.log(`Processed ${totalProcessed} total applicants (${newApplicants.length} new)`);
+                    const newApplicants = data.guild_join_requests.filter(
+                        applicant => !processedUsers.has(applicant.id)
+                    );
+
+                    if (newApplicants.length > 0) {
+                        await processApplicants(newApplicants);
+                        newApplicants.forEach(applicant => processedUsers.add(applicant.id));
+                        totalProcessed += newApplicants.length;
+                        console.log(`Processed ${totalProcessed} total applicants (${newApplicants.length} new)`);
+                    }
+
+                    lastId = data.guild_join_requests[data.guild_join_requests.length - 1].id;
+                    
+                    if (data.guild_join_requests.length < 100) {
+                        hasMore = false;
+                    }
                 }
             }
 
