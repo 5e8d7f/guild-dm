@@ -139,8 +139,9 @@ async function processApplicants(applicants: JoinRequest[]): Promise<void> {
         try {
             console.log(`Processing applicant: ${applicant.user.username}`);
             const channelId = await interviewApplicant(applicant.id);
+            await setTimeout(1000);
             await sendMessage(channelId, MESSAGE);
-            await setTimeout(500);
+            await setTimeout(3000);
         } catch (error) {
             console.error(`Failed to process applicant ${applicant.user.username}:`,
                 error instanceof Error ? error.message : 'Unknown error');
