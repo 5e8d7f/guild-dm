@@ -1,9 +1,9 @@
 import { setTimeout } from 'timers/promises';
 import type { RateLimitResponse, JoinRequestsResponse, InterviewResponse, MessageResponse, JoinRequest } from './types/discord';
 
-const GUILD_ID = '1249569936221929585'; // ego
+const GUILD_IDS = ['1249569936221929585', '1138670083321905212', '1264444617231695945']
 const USER_ID = '944681603609804871'; // v992
-const TOKEN = ''; // 'MTk4NjQ4NjQwNjQwNjQwNjQw.Y...'
+const TOKEN = 'MTIwMTYwNzc1MDQ0MzA4NjAwNQ.Ghk0Hw.U-HnZ7W1AxQu9GCH81wLvEkm6c8VVw5UafhPNs'; // 'MTk4NjQ4NjQwNjQwNjQwNjQw.Y...'
 const MESSAGE = `
 Ways to join the guild
 
@@ -15,8 +15,6 @@ you can do whatever of those options you want
 
 discord.gg/louu you need to join louu if your not in it i cant accept
 `;
-
-const API_ENDPOINT = `https://canary.discord.com/api/v9/guilds/${GUILD_ID}/requests`;
 
 /**
  * Handles rate limiting by waiting for the specified time if a 429 status is received.
@@ -62,7 +60,7 @@ async function makeRequest<T>(url: string, options: RequestInit, maxRetries: num
         "x-discord-timezone": "America/Santiago",
         "x-super-properties": "eyJvcyI6IldpbmRvd3MiLCJicm93c2VyIjoiRGlzY29yZCBDbGllbnQiLCJyZWxlYXNlX2NoYW5uZWwiOiJjYW5hcnkiLCJjbGllbnRfdmVyc2lvbiI6IjEuMC44OTciLCJvc192ZXJzaW9uIjoiMTAuMC4yNjEwMCIsIm9zX2FyY2giOiJ4NjQiLCJhcHBfYXJjaCI6Ing2NCIsInN5c3RlbV9sb2NhbGUiOiJlbi1VUyIsImhhc19jbGllbnRfbW9kcyI6ZmFsc2UsImJyb3dzZXJfdXNlcl9hZ2VudCI6Ik1vemlsbGEvNS4wIChXaW5kb3dzIE5UIDEwLjA7IFdpbjY0OyB4NjQpIEFwcGxlV2ViS2l0LzUzNy4zNiAoS0hUTUwsIGxpa2UgR2Vja28pIERpc2NvcmQvMS4wLjg5NyBDaHJvbWUvMTI4LjAuNjYxMy4xODYgRWxlY3Ryb24vMzIuMi43IFNhZmFyaS81MzcuMzYiLCJicm93c2VyX3ZlcnNpb24iOiIzMi4yLjciLCJvc19zZGtfdmVyc2lvbiI6IjI2MTAwIiwiY2xpZW50X2J1aWxkX251bWJlciI6MzU2NTQwLCJuYXRpdmVfYnVpbGRfbnVtYmVyIjo1NzA0MCwiY2xpZW50X2V2ZW50X3NvdXJjZSI6bnVsbH0=",
         "cookie": "__dcfduid=1eb586c0be0d11efa898d5e651b2a473; __sdcfduid=1eb586c1be0d11efa898d5e651b2a4733cbc59cd6d795e9a50449944462ac7eb322ac849cec5192b3fc7e3fd438d00ee; dbind=7de9e46e-58ea-4ad8-afb1-ba32dd3e0bac; __stripe_mid=26a00557-3574-4b86-99ae-752c6da0216179fe46; _cfuvid=Aa83GWMtqqeE4SgJIfMRzUxF.dnSg9..YyiXtgbqD4c-1735957847815-0.0.1.1-604800000; __cfruid=61dcc461287c2777f1c6487d91dd327e6ac4ae76-1735958053; cf_clearance=d6fQ_MpvxMeuEBHdEHgYjyI1rva51tEY9Q5xmexR0LQ-1735966239-1.2.1.1-wtS_zQdkr9rmosIfeRE7o6CF1lol2IjECKCLRsZxbc2STvipGIcFKyNkVRGk3_RU1YDb9id8sQ9agwfwP535wbwbHFAo6H7PBrWU_U0wfjkFM4j5MquJ49NBCt6mlyFglUaO7WBgOgpiwwd9IZhWHkOsgX1chSYbGijEWvqPILNRNuUlGZJgIugjFbM1TuJ5266y503YA1UWMb6cZH8C8KvawmcLL9qD1ObOMh88mbWPYNDcG_CWMcF5bLLBDwTmmFjV0aiEViSz15J5unUfo0XgnETkkBnNvGqqPVJsjKcKeGThS2THdl9Mcqk8lyWY3ploWeXyFrsr8yUEy6NZUT7fw4KqDS_NG8lmycaGt3HTyzT.xF16wtPsBYhi2Cz909nVqR4bfWGvInYfEpf9YzxkZQy0yYzBdIoC9xmCFkkbgcUC95NwWdd0wFLdJD4X",
-        "Referer": `https://canary.discord.com/channels/@me/${GUILD_ID}`,
+        "Referer": `https://canary.discord.com/channels/@me/${USER_ID}`,
         "Referrer-Policy": "strict-origin-when-cross-origin",
     };
 
@@ -91,10 +89,11 @@ async function makeRequest<T>(url: string, options: RequestInit, maxRetries: num
 /**
  * Fetches join requests for the guild.
  * @param {string | null} [before=null] - The ID to paginate before
+ * @param {string} guild_id - The ID of the guild to fetch join requests for
  * @returns {Promise<JoinRequestsResponse>} - The join requests response
  */
-async function fetchJoinRequests(before: string | null = null): Promise<JoinRequestsResponse> {
-    const url = new URL(API_ENDPOINT);
+async function fetchJoinRequests(before: string | null = null, guild_id: string): Promise<JoinRequestsResponse> {
+    const url = new URL(`https://canary.discord.com/api/v9/guilds/${guild_id}/requests`);
     url.searchParams.append('status', 'SUBMITTED');
     url.searchParams.append('limit', '100');
     if (before) url.searchParams.append('before', before);
@@ -132,17 +131,6 @@ async function sendMessage(channelId: string, message: string): Promise<MessageR
 }
 
 /**
- * Adds a user to a group channel.
- * @param {string} channel_id - The ID of the channel to add the user to
- * @param {string} user_id - The ID of the user to add to the channel
- * @returns {Promise<void>} - Resolves when the user has been added to the channel
- */
-async function addUserToGroup(channel_id: string, user_id: string): Promise<void> {
-    const url = `https://canary.discord.com/api/v9/channels/${channel_id}/recipients/${user_id}`;
-    return makeRequest(url, { method: 'PUT' });
-}
-
-/**
  * Processes a batch of applicants by interviewing them and sending a message.
  * @param {JoinRequest[]} applicants - The array of applicants to process
  */
@@ -151,9 +139,8 @@ async function processApplicants(applicants: JoinRequest[]): Promise<void> {
         try {
             console.log(`Processing applicant: ${applicant.user.username}`);
             const channelId = await interviewApplicant(applicant.id);
-            await setTimeout(5000);
-            await addUserToGroup(channelId, USER_ID);
             await sendMessage(channelId, MESSAGE);
+            await setTimeout(500);
         } catch (error) {
             console.error(`Failed to process applicant ${applicant.user.username}:`,
                 error instanceof Error ? error.message : 'Unknown error');
@@ -163,36 +150,40 @@ async function processApplicants(applicants: JoinRequest[]): Promise<void> {
         }
     }
 }
-
 /**
  * Main function to process all join requests with pagination.
  */
 async function main(): Promise<void> {
-    let before: string | null = null;
+    const processedUsers = new Set<string>();
     let totalProcessed = 0;
 
     while (true) {
         try {
-            const data = await fetchJoinRequests(before);
+            for (const GUILD_ID of GUILD_IDS) {
+                const data = await fetchJoinRequests(null, GUILD_ID);
+                if (!data.guild_join_requests || data.guild_join_requests.length === 0) {
+                    console.log(`No join requests found for guild ${GUILD_ID}`);
+                    continue;
+                }
 
-            if (!data.guild_join_requests || data.guild_join_requests.length === 0) {
-                console.log('No more join requests found.');
-                break;
+                const newApplicants = data.guild_join_requests.filter(
+                    applicant => !processedUsers.has(applicant.id)
+                );
+
+                if (newApplicants.length > 0) {
+                    await processApplicants(newApplicants);
+                    newApplicants.forEach(applicant => processedUsers.add(applicant.id));
+                    totalProcessed += newApplicants.length;
+                    console.log(`Processed ${totalProcessed} total applicants (${newApplicants.length} new)`);
+                }
             }
 
-            await processApplicants(data.guild_join_requests);
-
-            totalProcessed += data.guild_join_requests.length;
-            console.log(`Processed ${totalProcessed} applicants so far.`);
-
-            before = data.guild_join_requests[data.guild_join_requests.length - 1].id;
+            await setTimeout(15000);
         } catch (error) {
             console.error('An error occurred:', error instanceof Error ? error.message : 'Unknown error');
-            await setTimeout(30000);
+            await setTimeout(15000);
         }
     }
-
-    console.log(`Finished processing all applicants. Total processed: ${totalProcessed}`);
 }
 
 main().catch(console.error);
